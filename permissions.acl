@@ -1,0 +1,223 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+rule R6b_AllowChangeInAmount {
+  	description: "Allow deduction in Patients wallet"
+  	participant: "org.ehr.basic.Chemist"
+  	operation: READ, UPDATE
+  	resource(v): "org.ehr.basic.Patient"
+  	transaction(t): "org.ehr.basic.SellMed"
+  	condition: (v.getIdentifier() == t.patient.getIdentifier())
+  	action: ALLOW
+}
+
+rule R6a_ChemistCanSell {
+  	description: "Chemists can sell medicines using BuyMed"
+  	participant(v): "org.ehr.basic.Chemist"
+  	operation: CREATE
+    resource(t): "org.ehr.basic.SellMed"
+    condition: (v.getIdentifier() == t.chem.getIdentifier())
+  	action: ALLOW
+}
+
+rule R5b_AllowChangeInAmount {
+  	description: "Allow deduction in Patients wallet"
+  	participant: "org.ehr.basic.Technician"
+  	operation: READ, UPDATE
+  	resource(v): "org.ehr.basic.Patient"
+  	transaction(t): "org.ehr.basic.Testing"
+  	condition: (v.getIdentifier() == t.patient.getIdentifier())
+  	action: ALLOW
+}
+
+rule R5a_TechniciansCanTest {
+  	description: "Technicians can use test transaction"
+  	participant(v): "org.ehr.basic.Technician"
+  	operation: CREATE
+    resource(t): "org.ehr.basic.Testing"
+    condition: (v.getIdentifier() == t.tech.getIdentifier())
+  	action: ALLOW
+}
+
+rule R4f_PatientPrescriptionUpdate {
+  	description: "Patients cannot update their prescription"
+  	participant: "org.ehr.basic.Patient"
+  	operation: UPDATE
+    resource: "org.ehr.basic.Prescription"
+  	action: DENY
+}
+
+rule R4e_ParticipantsUpdatePrescription {
+  	description: "All Participants can update prescription"
+  	participant: "org.ehr.basic.**"
+  	operation: UPDATE
+  	resource: "org.ehr.basic.Prescription"
+  	action: ALLOW
+}
+
+rule R4d_PatientCanSeeTheirPresOnly {
+  	description: "Patients can see their prescriptions letter only"
+  	participant(v): "org.ehr.basic.Patient"
+  	operation: READ
+    resource(t): "org.ehr.basic.Prescription"
+  	condition: (v.getIdentifier() != t.patient.getIdentifier())
+  	action: DENY
+}
+
+rule R4c_AllowChangeInAmount {
+  description: "Change in patient's amount"
+  participant: "org.ehr.basic.Doctor"
+  operation: READ, UPDATE
+  resource(v): "org.ehr.basic.Patient"
+  transaction(t): "org.ehr.basic.Consult"
+  condition: (v.getIdentifier() == t.patient.getIdentifier())
+  action: ALLOW
+}
+
+rule R4b_DoctorCreatePrescription {
+  	description: "Only doctors can create prescription"
+  	participant(t): "org.ehr.basic.Doctor"
+  	operation: CREATE
+    resource(v): "org.ehr.basic.Prescription"
+  	condition: (t.getIdentifier() == v.doctor.getIdentifier())
+  	action: ALLOW
+}
+
+rule R4a_DoctorCanConsult {
+  description: "Only Doctors can consult patients with consult transaction"
+  participant(t): "org.ehr.basic.Doctor"
+  operation: CREATE
+  resource(v): "org.ehr.basic.Consult"
+  condition: (t.getIdentifier() == v.doctor.getIdentifier())
+  action: ALLOW
+  
+}
+
+rule R3f_PatientAppointUpdate {
+  	description: "Patients cannot update their appointments"
+  	participant: "org.ehr.basic.Patient"
+  	operation: UPDATE
+    resource: "org.ehr.basic.AppointLetter"
+  	action: DENY
+}
+
+rule R3e_ParticipantsUpdateAppoint {
+  	description: "All Participants can update appointments"
+  	participant: "org.ehr.basic.**"
+  	operation: UPDATE
+  	resource: "org.ehr.basic.AppointLetter"
+  	action: ALLOW
+}
+rule R3d_PatientCanSeeTheirAppointsOnly {
+  	description: "Patients can see their appointment letter only"
+  	participant(v): "org.ehr.basic.Patient"
+  	operation: READ
+    resource(t): "org.ehr.basic.AppointLetter"
+  	condition: (v.getIdentifier() != t.patient.getIdentifier())
+  	action: DENY
+}
+
+rule R3c_AllowChangeInStatus {
+  description: "Change in doctor's status"
+  participant: "org.ehr.basic.Patient"
+  operation: READ, UPDATE
+  resource(v): "org.ehr.basic.Doctor"
+  transaction(t): "org.ehr.basic.CreateAppointment"
+  condition: (v.getIdentifier() == t.doctor.getIdentifier())
+  action: ALLOW
+}
+
+rule R3b_PatientCanCreateAppointAsset {
+  	description: "Patinet can create appointment letter asset"
+  	participant(v): "org.ehr.basic.Patient"
+  	operation: CREATE
+    resource(t): "org.ehr.basic.AppointLetter"
+  	condition: (v.getIdentifier() == t.patient.getIdentifier())
+  	action: ALLOW
+}
+
+rule R3a_OnlyPatientCreateAppointment {
+  	description: "Only Patients can create appointments"
+  	participant(v): "org.ehr.basic.Patient"
+  	operation: CREATE
+    resource(t): "org.ehr.basic.CreateAppointment"
+  	condition: (v.getIdentifier() == t.patient.getIdentifier())
+  	action: ALLOW
+}
+
+rule R2b_OnlyTechniciansCreateAssetTests {
+  description: "Only Techinicains can create and manage tests for the day"
+  participant: "org.ehr.basic.Technician"
+  operation: ALL
+  resource: "org.ehr.basic.Tests"
+  action: ALLOW
+}
+
+rule R2a_OnlyTechniciansCreateTests {
+  description: "Only Techinicains can initiate create tests transaction for the day"
+  participant: "org.ehr.basic.Technician"
+  operation: CREATE
+  resource: "org.ehr.basic.CreateTests"
+  action: ALLOW
+}
+
+
+rule R1c_ParticpantsCantSeePatients {
+  	description: "Participants cannot see any patients records"
+  	participant(v): "org.ehr.basic.**"
+  	operation: READ
+    resource(t): "org.ehr.basic.Patient"
+  	condition: (v.getIdentifier() != t.getIdentifier())
+  	action: DENY
+}
+
+rule R1b_ParticipantsUpdateThemselvesOnly {
+  	description: "Participants can update their own records only"
+  	participant(v): "org.ehr.basic.**"
+  	operation: CREATE, UPDATE, DELETE
+    resource(t): "org.ehr.basic.**"
+  	condition: (v.getIdentifier() == t.getIdentifier())
+  	action: ALLOW
+}
+
+rule R1a_ParicipantsReadOtherParticipants {
+  	description: "Participants can see other participants records"
+  	participant: "org.ehr.basic.**"
+  	operation: READ
+  	resource: "org.ehr.basic.**"
+    action: ALLOW
+}
+
+rule SystemACL {
+  description:  "System ACL to permit all access"
+  participant: "org.hyperledger.composer.system.Participant"
+  operation: ALL
+  resource: "org.hyperledger.composer.system.**"
+  action: ALLOW
+}
+
+rule NetworkAdminUser {
+    description: "Grant business network administrators full access to user resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "**"
+    action: ALLOW
+}
+
+rule NetworkAdminSystem {
+    description: "Grant business network administrators full access to system resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "org.hyperledger.composer.system.**"
+    action: ALLOW
+}

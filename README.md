@@ -1,3 +1,1 @@
-# Electronic-Health-Record
-
-A Blockchian based health record storage system developed using hyperledger-composer(v1.2.1).
+This is the readme file for the Business Network Definition created in Playground
